@@ -17,7 +17,7 @@
 
 ## Introduction
 
-**nf-core/plumb** is a bioinformatics pipeline that ...
+**nf-core/plumb** is a pipeline that generates a publicly accessible database that integrates structural and thermodynamic data for diverse protein-ligand systems, prioritizing reproducibility. The database will be built from known protein-ligand complexes and include docked congeneric ligand series to represent a broad chemical space, with quality control processes to evaluate the quality of docked poses. This effort is conducted in conjunction with the Living Journal of Computational Molecular Sciences paper, “Best Practices for Constructing, Preparing, and Evaluating Protein-Ligand Binding Affinity Benchmarks [Article v1.0],” which aims to create a fully self-consistent, open community resource and set of best practices free from any particular commercial vendor influence.
 
 <!-- TODO nf-core:
    Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
