@@ -20,8 +20,8 @@ lint:
 template:
   org: nf-core
   name: plumb
-  description: 'Protein-ligand unified metrics benchmark (PLUMB): dataset to benchmark
-    force field and free energy methods'
+  description: "Protein-ligand unified metrics benchmark (PLUMB): dataset to benchmark
+    force field and free energy methods"
   author: Ariana Brenner Clerkin
   version: 1.0.0dev
   force: true
