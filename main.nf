@@ -41,6 +41,36 @@ workflow NFCORE_PLUMB {
         samplesheet
     )
 }
+
+/*
+~~~~~~~~~~~~~~~~
+ABC customizations from tutorial
+~~~~~~~~~~~~~~~~
+*/
+/*
+ * Use echo to print 'Hello World!' to standard out
+ */
+process printStrategy {
+
+    publishDir 'results', mode: 'copy'
+
+    input: 
+        val dock_alg
+        val pocket_threshold
+    
+    output:
+        path 'strategy.txt'
+
+    script:
+    """
+    echo 'Docking Algorithm: $dock_alg' > strategy.txt
+    echo 'Threshold: $pocket_threshold Angstrom' >> strategy.txt
+    """
+}
+
+
+
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -48,37 +78,40 @@ workflow NFCORE_PLUMB {
 */
 
 workflow {
-
-    main:
+    // dock_ch = Channel.of(params.docking)
+    // dist_ch = Channel.of(params.pocket_dist)
+    // printStrategy(dock_ch, dist_ch)
+    printStrategy(params.docking, params.pocket_dist)
+    // main:
     //
     // SUBWORKFLOW: Run initialisation tasks
     //
-    PIPELINE_INITIALISATION (
-        params.version,
-        params.validate_params,
-        params.monochrome_logs,
-        args,
-        params.outdir,
-        params.input
-    )
+    // PIPELINE_INITIALISATION (
+    //     params.version,
+    //     params.validate_params,
+    //     params.monochrome_logs,
+    //     args,
+    //     params.outdir,
+    //     params.input
+    // )
 
-    //
-    // WORKFLOW: Run main workflow
-    //
-    NFCORE_PLUMB (
-        PIPELINE_INITIALISATION.out.samplesheet
-    )
-    //
-    // SUBWORKFLOW: Run completion tasks
-    //
-    PIPELINE_COMPLETION (
-        params.email,
-        params.email_on_fail,
-        params.plaintext_email,
-        params.outdir,
-        params.monochrome_logs,
-        params.hook_url,
-    )
+    // //
+    // // WORKFLOW: Run main workflow
+    // //
+    // NFCORE_PLUMB (
+    //     PIPELINE_INITIALISATION.out.samplesheet
+    // )
+    // //
+    // // SUBWORKFLOW: Run completion tasks
+    // //
+    // PIPELINE_COMPLETION (
+    //     params.email,
+    //     params.email_on_fail,
+    //     params.plaintext_email,
+    //     params.outdir,
+    //     params.monochrome_logs,
+    //     params.hook_url,
+    // )
 }
 
 /*
