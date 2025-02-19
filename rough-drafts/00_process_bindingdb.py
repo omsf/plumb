@@ -16,20 +16,27 @@ def parse_args():
 
 def main():
     args = parse_args()
+
     # get all sdf files
     sdfs = list(args.input_dir.glob('*3D.sdf'))
 
     output = []
     for sdf in tqdm(sdfs):
+
+        # asap function to read separate ligands from a multi-ligand sdf file
         mols: list[Ligand] = MolFileFactory(filename=sdf).load()
 
+        # create a dictionary for each ligand containing various relevant information
+        # there are some hidden choices here, for instance OpenEye is adding hydrogens which you might not want
         for mol in mols:
             mol_dict = {'compound_name': mol.compound_name,
-                'filename': sdf.name,
+                        'filename': sdf.name,
                         'has_3d': mol.to_oemol().GetDimension() == 3,
                         'num_atoms': mol.to_oemol().NumAtoms(),
                         'smiles': mol.smiles,
                         }
+
+            # any data in the SDF file is saved to the 'tags' attribute of an asapdiscovery Ligand object
             mol_dict.update(mol.tags)
             output.append(mol_dict)
 
