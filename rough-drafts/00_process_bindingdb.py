@@ -7,6 +7,7 @@ from argparse import ArgumentParser
 import pandas as pd
 from pathlib import Path
 from tqdm import tqdm
+import json
 
 def parse_args():
     parser = ArgumentParser()
@@ -21,23 +22,30 @@ def main():
     sdfs = list(args.input_dir.glob('*3D.sdf'))
 
     output = []
-    for sdf in tqdm(sdfs):
+    for sdf in tqdm(sdfs[:10]):
 
         # asap function to read separate ligands from a multi-ligand sdf file
         mols: list[Ligand] = MolFileFactory(filename=sdf).load()
 
         # create a dictionary for each ligand containing various relevant information
         # there are some hidden choices here, for instance OpenEye is adding hydrogens which you might not want
+
         for mol in mols:
             mol_dict = {'compound_name': mol.compound_name,
                         'filename': sdf.name,
                         'has_3d': mol.to_oemol().GetDimension() == 3,
                         'num_atoms': mol.to_oemol().NumAtoms(),
                         'smiles': mol.smiles,
+                        'pdb_id': mol.tags.get('PDB ID ')[:4] if mol.tags.get('PDB ID ') else '',
                         }
 
             # any data in the SDF file is saved to the 'tags' attribute of an asapdiscovery Ligand object
             mol_dict.update(mol.tags)
+
+            # write out sdf file
+            if mol_dict['has_3d']:
+                mol.to_sdf(f'{mol.compound_name}.sdf')
+
             output.append(mol_dict)
 
     df = pd.DataFrame.from_records(output)
@@ -55,6 +63,10 @@ def main():
         for filename in unique_sdf_filenames:
             f.write(f'{filename}\n')
 
+    # write out separate json records
+    for record in df_3d.to_dict(orient='records'):
+        with open(f'{record["compound_name"]}.json', 'w') as f:
+            f.write(json.dumps(record, indent=4))
 
 if __name__ == '__main__':
     main()

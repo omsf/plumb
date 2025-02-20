@@ -1,0 +1,5 @@
+#!/bin/zsh
+source ~/.zshrc
+mamba activate asap2025
+
+python 04_assess_prepped_protein.py --input-oedu output/3T60_BindingDB_50173539_mol_1_spruced_complex-513ae159d8d9230c913ab12439d29ea53b6736e331230104a88c81607f10de65+JJJNFNLUKYZAKI-AGLMPINONA-N/3T60_BindingDB_50173539_mol_1_spruced_complex.oedu
