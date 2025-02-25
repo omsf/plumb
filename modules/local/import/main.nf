@@ -35,6 +35,24 @@ process DOWNLOAD_BINDINGDB {
 
 process PROCESS_BINDINGDB {
 
+    /**
+    * PROCESS: PROCESS_BINDINGDB
+    * -----------------------------------------
+    * This process:
+    * - Takes an input directory containing SDF files
+    * - Runs a Python script (`process_bindingdb.py`) to process them
+    * - Outputs multiple processed CSV and JSON files
+    * 
+    * Environment:
+    * - Uses an existing Conda environment (`asapdiscovery`)
+    * - Runs on SLURM with specified resources
+    * 
+    * TO DO: 
+    * The conda directive does not seem to work. I need to 
+    * manually activate the environment of interest and I am not sure why
+    * this is not ideal but ok for development. 
+    */
+
     tag "process_bindingdb"
     conda "/home/brennera/miniconda3/envs/asapdiscovery"
     
@@ -54,6 +72,8 @@ process PROCESS_BINDINGDB {
     
     script:
     """
+    source /home/brennera/miniconda3/etc/profile.d/conda.sh 
+    conda activate asapdiscovery 
     which python
     python ${projectDir}/bin/process_bindingdb.py --input-dir ${input_dir}
     """
