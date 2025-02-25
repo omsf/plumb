@@ -13,7 +13,7 @@ process DOWNLOAD_BINDINGDB {
     script:
     """
     mkdir -p ${projectDir}/raw_data
-    curl -L -o BindingDBValidationSets-1.zip "https://www.bindingdb.org/bind/chemsearch/marvin/SDFdownload.jsp?download_file=/bind/downloads/BindingDBValidationSets-1.zip"
+    curl -L -o BindingDBValidationSets-1.zip "https://www.bindingdb.org/rwd/bind/downloads/BindingDBValidationSets-1.zip"
     unzip -o BindingDBValidationSets-1.zip -d ${projectDir}/raw_data/binding_db
     """
 }
