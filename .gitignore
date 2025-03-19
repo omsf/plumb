@@ -7,3 +7,6 @@ testing/
 testing*
 *.pyc
 null/
+test_execution/
+intermed_data/
+raw_data/

@@ -29,6 +29,8 @@ include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_plum
 include { PRINT_STRATEGY } from './modules/local/messages/main.nf'
 include {PROCESS_INPUT } from './modules/local/prep_dock/main.nf'
 include {DOWNLOAD_BINDINGDB } from './modules/local/import/main.nf'
+include {PROCESS_BINDINGDB } from './modules/local/import/main.nf'
+include {PROCESS_BINDINGDB_W_CH } from './modules/local/import/main.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -77,8 +79,16 @@ workflow {
     // dock_ch = Channel.of(params.docking)
     // dist_ch = Channel.of(params.pocket_dist)
     // printStrategy(dock_ch, dist_ch)
-    DOWNLOAD_BINDINGDB()
+    // DOWNLOAD_BINDINGDB()
     PRINT_STRATEGY(params.docking, params.pocket_dist)
+    input_dir = file(projectDir).resolve("raw_data/binding_db") 
+    PROCESS_BINDINGDB(input_dir)
+    // Define an input channel with a clear name
+    // Channel.fromPath("${projectDir}/raw_data/binding_db/*3D.sdf")  // Creates a channel from all matching SDF files
+    //     | map { file(it) }  // Converts each path string to a Nextflow file object
+    //     | PROCESS_BINDINGDB_W_CH  // Sends each file as input to the process
+
+
     // PROCESS_INPUT()
 
     // main:
