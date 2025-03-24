@@ -9,6 +9,6 @@ process PROCESS_BINDINGDB {
 
     script:
     """
-    python "${params.scripts}/process_bindingdb.py" "${params.bindingDB}"
+    python "${params.scripts}/process_bindingdb.py" --input-dir "${params.bindingDB}"
     """
 }
