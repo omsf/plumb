@@ -1,5 +1,5 @@
 process PROCESS_BINDINGDB {
-    conda "${params.asap2025}"
+    conda "${params.asap}"
     tag "process_bindingdb"
     clusterOptions '--partition cpushort'
 
