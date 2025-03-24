@@ -24,7 +24,9 @@ def parse_args():
     parser.add_argument(
         "--input-json",
     )
+    parser.add_argument("--fasta-sequence", type=str, help="Fasta sequence")
     parser.add_argument("--loop-db", type=Path, help="Path to loop database")
+    parser.add_argument("--output-dir", type=Path, default="./", help="Path to the output directory.")
     return parser.parse_args()
 
 
@@ -76,12 +78,11 @@ def spruce_protein(
 
     # Add caps when needed
     # Allow truncation in case adding a cap causes a clash
-    # cap_opts = oespruce.OECapBuilderOptions()
-    # # cap_opts.SetCap
-    # cap_opts.SetAllowTruncate(False)
-    # is_terminal_predicate = oechem.OEOrAtom(
-    #     oechem.OEIsNTerminalAtom(), oechem.OEIsCTerminalAtom()
-    # )
+    cap_opts = oespruce.OECapBuilderOptions()
+    cap_opts.SetAllowTruncate(True)
+    is_terminal_predicate = oechem.OEOrAtom(
+        oechem.OEIsNTerminalAtom(), oechem.OEIsCTerminalAtom()
+    )
 
     # Set Build Loop and Sidechain Opts
     sc_opts = oespruce.OESidechainBuilderOptions()
@@ -131,8 +132,9 @@ def spruce_protein(
     )
 
     build_sidechains_success = oespruce.OEBuildSidechains(initial_prot, sc_opts)
-    # print(type(initial_prot), type(is_terminal_predicate), type(cap_opts))
-    # add_caps_success = oespruce.OECapTermini(initial_prot)
+    print(type(initial_prot), type(is_terminal_predicate), type(cap_opts))
+    add_caps_success = oespruce.OECapTermini(initial_prot, is_terminal_predicate, cap_opts)
+    print(add_caps_success)
     place_hydrogens_success = oechem.OEPlaceHydrogens(initial_prot)
     spruce_error_code = spruce.StandardizeAndFilter(initial_prot, grid, metadata)
     spruce_error_msg = spruce.GetMessages(spruce_error_code)
@@ -189,6 +191,9 @@ def convert_to_three_letter_codes(sequence) -> list[str]:
 def main():
     args = parse_args()
 
+    output_dir = args.output_dir
+    output_dir.mkdir(exist_ok=True, parents=True)
+
     with open(args.input_json, "r") as f:
         record_dict = json.load(f)
 
@@ -196,18 +201,19 @@ def main():
 
     # this is what you would do if you didn't want to use whatever ligand is in the protein
     # split_dict = split_openeye_mol(graphmol, keep_one_lig=False)
+    split_dict = split_openeye_mol(graphmol, keep_one_lig=True)
 
     # # Save initial protein as pdb file
-    # target = Target.from_oemol(
-    #     split_dict["prot"],
-    #     target_name=record_dict['pdb_id'],
-    # )
+    target = Target.from_oemol(
+        split_dict["prot"],
+        target_name=record_dict['pdb_id'],
+    )
 
-    target = Target.from_oemol(graphmol, target_name=record_dict['pdb_id'])
+    # target.to_pdb("protein.pdb")
 
-    target.to_pdb("protein.pdb")
-
-    ligand = Ligand.from_sdf(f'{record_dict["compound_name"]}.sdf')
+    # this is what you would do if you didn't want to use whatever ligand is in the protein
+    ligand = Ligand.from_oemol(split_dict["lig"])
+    # ligand = Ligand.from_sdf(f'{record_dict["compound_name"]}.sdf')
 
     combined_complex = Complex(target=target, ligand=ligand, ligand_chain="L")
 
@@ -216,18 +222,18 @@ def main():
     # spruce protein
     results, spruced = spruce_protein(
         initial_prot=oemol,
-        # protein_sequence=old_record.sequence,
+        protein_sequence=args.fasta_sequence,
         loop_db=args.loop_db,
     )
     split_dict = split_openeye_mol(spruced)
     prepped_target = Target.from_oemol(split_dict["prot"], **target.dict())
     prepped_ligand = Ligand.from_oemol(split_dict["lig"], **ligand.dict())
-    prepped_ligand.to_sdf(f"{ligand.compound_name}_ligand.sdf")
-    prepped_target.to_pdb(f"{target.target_name}_spruced.pdb")
+    prepped_ligand.to_sdf(output_dir / f"{ligand.compound_name}_ligand.sdf")
+    prepped_target.to_pdb(output_dir / f"{target.target_name}_spruced.pdb")
 
     prepped_complex = Complex(target=prepped_target, ligand=prepped_ligand, ligand_chain="L")
-    prepped_complex.to_pdb(f"{target.target_name}_{ligand.compound_name}_spruced_complex.pdb")
-    results.to_json_file(f"{target.target_name}_spruce_results.json")
+    prepped_complex.to_pdb(output_dir / f"{target.target_name}_{ligand.compound_name}_spruced_complex.pdb")
+    results.to_json_file(output_dir / f"{target.target_name}_spruce_results.json")
 
 
 if __name__ == "__main__":

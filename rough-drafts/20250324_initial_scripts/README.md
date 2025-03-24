@@ -17,4 +17,15 @@ In general for nextflow you don't want to have to specify directories as it will
 - There isn't an obvious way to connect the ligand with the BindingDB id with the crystallographic ligand in the corresponding PDB structure. That is, for each set of ligands, I haven't found which ligand is actually the one with a real structure. The PDB usually has this information now, so we could download the PDB metadata and cross-reference that way.
 - it occured to me that the asapdiscovery alchemy package has a constrained conformer generation that will be better than docking for prepping for free energy calculations. we should use it.
 - I didn't include the loop_db bc it takes a long time for testing but that should happen for anything requiring simulations
+
+# 2025.03.24 Updates
+
+- used output directories for each step to make it easier to see what's going on
+- turn constrained pose generation into its own script
+- separated alchemiscale submission into its own script
+- used 1ykr as test case instead because it's a simpler protein and doesn't have missing loops so it doesnt take long to prep
+
+## main remaining problems
+
+- no simulation validation yet before submitting to alchemiscale, which would be smart (we'd rather things to fail on local compute than waste alchemiscale resources)
 -

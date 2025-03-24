@@ -16,11 +16,19 @@ def parse_args():
         type=Path,
         help="Path to input CIF file",
     )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default="./",
+        help="Path to the output directory.",)
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
+    output_dir = args.output_dir
+    output_dir.mkdir(exist_ok=True, parents=True)
+
     du = load_openeye_design_unit(args.input_oedu)
 
     # should use a different id method
@@ -31,7 +39,7 @@ def main():
 
     report = {'errors': err_msgs, 'warnings': [], 'has_iridium_data': sq.HasIridiumData()}
 
-    with open(f"{stem}_quality_report.json", "w") as f:
+    with open(output_dir / f"{stem}_quality_report.json", "w") as f:
         json.dump(report, f, indent=4)
 
 

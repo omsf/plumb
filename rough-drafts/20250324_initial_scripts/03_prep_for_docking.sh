@@ -8,5 +8,6 @@ mamba activate asap2025
 # it also takes an eternity to run
 asap-cli protein-prep \
 --target SARS-CoV-2-Mpro \
---pdb-file 3T60_BindingDB_50173539_mol_1_spruced_complex.pdb \
+--pdb-file 02_output/1YKR_628_spruced_complex.pdb \
+--output-dir 03_output
 
