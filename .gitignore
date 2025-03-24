@@ -10,3 +10,13 @@ null/
 test_execution/
 intermed_data/
 raw_data/
+rough-drafts/*sdf
+rough-drafts/*csv
+rough-drafts/*json
+rough-drafts/*out
+rough-drafts/*pdb
+rough-drafts/*cif
+rough-drafts/.ipynb_checkpoints/
+rough-drafts/output/
+rough-drafts/*txt
+modules/local/import/.main.nf.swp
