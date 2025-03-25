@@ -32,5 +32,5 @@ workflow {
     // Only download one for testing
 //     DOWNLOAD_PDB(unique_jsons.filter{value -> value[0] == "6702"})
     DOWNLOAD_PDB(unique_jsons)
-    PREP_CIF(DOWNLOAD_PDB.out.input_cif, DOWNLOAD_PDB.out.record_json)
+    PREP_CIF(DOWNLOAD_PDB.out.input_cif.combine(DOWNLOAD_PDB.out.record_json, by:0))
 }

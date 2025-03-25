@@ -40,8 +40,13 @@ process PREP_CIF {
     clusterOptions '--partition cpushort'
 
     input:
-    tuple val(uuid), path(input_cif, stageAs:"input.cif")
-    tuple val(uuid), path(input_json, stageAs:"input.json")
+    tuple val(uuid), path(input_cif, stageAs:"input.cif"), path(input_json, stageAs:"input.json")
+
+    output:
+    tuple val(uuid), path("*spruced_complex.pdb"), emit: prepped_pdb
+    tuple val(uuid), path("*ligand.sdf"), emit: ligand_sdf
+    tuple val(uuid), path("*.json"), emit: record_json
+
 
 
     script:
