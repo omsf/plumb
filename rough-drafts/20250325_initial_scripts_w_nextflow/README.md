@@ -4,4 +4,5 @@
 ## Unsolved Problems
 
 - [ ] congeneric inputs are currently hardcoded
-- [ ]
+- [ ] haven't figured out how we want to automate alchemiscale submission, again we want to be careful with this
+- [ ] CIF / FASTA / SEQRES
