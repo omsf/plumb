@@ -56,7 +56,7 @@ def main():
     df.to_csv(output_dir / 'processed_bindingdb.csv', index=False)
 
     # write separate csvs for 2D and 3D
-    df_2d = df[df['has_3d']]
+    df_2d = df[~df['has_3d']]
     df_3d = df[df['has_3d']]
     df_2d.to_csv(output_dir / '2d_bindingdb.csv', index=False)
     df_3d.to_csv(output_dir / '3d_bindingdb.csv', index=False)
