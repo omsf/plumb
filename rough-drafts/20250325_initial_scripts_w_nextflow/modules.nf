@@ -74,3 +74,20 @@ process PREP_FOR_DOCKING {
     asap-cli protein-prep --target SARS-CoV-2-Mpro --pdb-file "${prepped_pdb}" --output-dir "./"
     """
 }
+process ASSESS_PREPPED_PROTEIN {
+    publishDir "${params.output}", mode: 'copy', overwrite: true
+    conda "${params.asap}"
+    tag "${uuid}"
+    clusterOptions '--partition cpushort'
+
+    input:
+    tuple val(uuid), path(design_unit, stageAs: "design_unit.oedu")
+
+    output:
+    tuple val(uuid), path("*.json"), emit: report_json
+
+    script:
+    """
+    python "${params.scripts}/assess_prepped_protein.py" --input-oedu "${design_unit}"
+    """
+}
