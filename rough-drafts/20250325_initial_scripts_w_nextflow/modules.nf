@@ -110,7 +110,7 @@ process GENERATE_CONSTRAINED_LIGAND_POSES {
 
 }
 process MAKE_FEC_INPUTS {
-    publishDir "${params.output}/${uuid}", mode: 'copy', overwrite: true, saveAs: {fn -> "${uuid}_${fn}"}
+    publishDir "${params.output}/${uuid}", mode: 'copy', overwrite: true
     conda "${params.asap}"
     tag "${uuid}"
     clusterOptions '--partition cpushort'
