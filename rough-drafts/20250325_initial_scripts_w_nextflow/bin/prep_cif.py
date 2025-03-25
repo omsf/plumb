@@ -207,7 +207,7 @@ def spruce_protein(
         SpruceResults(
             build_loops_success=build_loops_success,
             build_sidechains_success=build_sidechains_success,
-            # add_caps_success=None,  # add_caps_success,
+            add_caps_success=add_caps_success,
             place_hydrogens_success=place_hydrogens_success,
             error_message=spruce_error_msg,
         ),
