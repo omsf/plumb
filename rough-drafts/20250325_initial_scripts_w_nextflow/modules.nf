@@ -51,7 +51,7 @@ process PREP_CIF {
 
     script:
     """
-    python "${params.scripts}/prep_cif.py" --input-json "${input_json}" --input-cif "${input_cif}" --fasta-sequence "${params.fasta}"
+    python "${params.scripts}/prep_cif.py" --input-json "${input_json}" --input-cif "${input_cif}"
     """
 }
 process PREP_FOR_DOCKING {
