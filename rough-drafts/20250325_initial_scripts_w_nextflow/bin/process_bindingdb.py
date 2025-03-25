@@ -36,7 +36,7 @@ def main():
 
         for mol in mols:
             mol_dict = {'compound_name': mol.compound_name,
-                        'filename': sdf.name,
+                        'congeneric': str(sdf.absolute()),
                         'has_3d': mol.to_oemol().GetDimension() == 3,
                         'num_atoms': mol.to_oemol().NumAtoms(),
                         'smiles': mol.smiles,
@@ -62,7 +62,7 @@ def main():
     df_3d.to_csv(output_dir / '3d_bindingdb.csv', index=False)
 
     # get unique sdf filenames with 3D coordinates
-    unique_sdf_filenames = df_3d['filename'].unique()
+    unique_sdf_filenames = df_3d['congeneric'].unique()
     with open(output_dir / 'unique_3D_sdf_filenames.txt', 'w') as f:
         for filename in unique_sdf_filenames:
             f.write(f'{filename}\n')

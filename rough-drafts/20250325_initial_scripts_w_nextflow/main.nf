@@ -7,7 +7,7 @@ params.bindingDB = "/data1/choderaj/paynea/plumb_binding_db/BindingDBValidationS
 // hacky way to get around needing to learn to read FASTA from cif
 params.fasta = "MENFQKVEKIGEGTYGVVYKARNKLTGEVVALKKIRLDTETEGVPSTAIREISLLKELNHPNIVKLLDVIHTENKLYLVFEFLHQDLKKFMDASALTGIPLPLIKSYLFQLLQGLAFCHSHRVLHRDLKPQNLLINTEGAIKLADFGLARAFGVPVRTYTHEVVTLWYRAPEILLGCKYYSTAVDIWSLGCIFAEMVTRRALFPGDSEIDQLFRIFRTLGTPDEVVWPGVTSMPDYKPSFPKWARQDFSKVVPPLDEDGRSLLSQMLHYDPNKRISAKAALAHPFFQDVTKPVPHLRL"
 // this being hard coded is bad but it should be easy to automate tying this sdf file to the uuid and then each one can be passed separately
-params.congenericSeries = "${params.bindingDB}/1YKR_Validation_Affinities_3D.sdf"
+// params.congenericSeries = "${params.bindingDB}/1YKR_Validation_Affinities_3D.sdf"
 
 // this should eventually be split out to be more helpful
 params.output = "${params.bindingDB}/output"
@@ -39,11 +39,13 @@ workflow {
     // Load in input json files and extract unique id from each and connect it to the json
     input_files.map{json ->  tuple([new JsonSlurper().parseText(json.text)][0].get("BindingDB monomerid"), json)}
         .set{unique_jsons}
+    input_files.map{json ->  tuple([new JsonSlurper().parseText(json.text)][0].get("congeneric"), json)}
+        .set{congeneric_series}
     DOWNLOAD_PDB(unique_jsons)
     PREP_CIF(DOWNLOAD_PDB.out.input_cif.combine(DOWNLOAD_PDB.out.record_json, by:0))
     PREP_FOR_DOCKING(PREP_CIF.out.prepped_pdb)
     ASSESS_PREPPED_PROTEIN(PREP_FOR_DOCKING.out.design_unit)
-    GENERATE_CONSTRAINED_LIGAND_POSES(PREP_FOR_DOCKING.out.json_schema)
+    GENERATE_CONSTRAINED_LIGAND_POSES(PREP_FOR_DOCKING.out.json_schema.combine(congeneric_series, by:0))
     MAKE_FEC_INPUTS(GENERATE_CONSTRAINED_LIGAND_POSES.out.posed_ligands.combine(PREP_FOR_DOCKING.out.prepped_pdb, by:0))
     VISUALIZE_NETWORK(MAKE_FEC_INPUTS.out.network_graph)
 }
