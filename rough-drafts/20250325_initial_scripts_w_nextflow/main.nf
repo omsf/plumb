@@ -6,7 +6,7 @@ params.bindingDB = "/data1/choderaj/paynea/plumb_binding_db/BindingDBValidationS
 
 // hacky way to get around needing to learn to read FASTA from cif
 params.fasta = "MENFQKVEKIGEGTYGVVYKARNKLTGEVVALKKIRLDTETEGVPSTAIREISLLKELNHPNIVKLLDVIHTENKLYLVFEFLHQDLKKFMDASALTGIPLPLIKSYLFQLLQGLAFCHSHRVLHRDLKPQNLLINTEGAIKLADFGLARAFGVPVRTYTHEVVTLWYRAPEILLGCKYYSTAVDIWSLGCIFAEMVTRRALFPGDSEIDQLFRIFRTLGTPDEVVWPGVTSMPDYKPSFPKWARQDFSKVVPPLDEDGRSLLSQMLHYDPNKRISAKAALAHPFFQDVTKPVPHLRL"
-params.congenericSeries = "{params.bindingDB}/1YKR_Validation_Affinities_3D.sdf"
+params.congenericSeries = "${params.bindingDB}/1YKR_Validation_Affinities_3D.sdf"
 
 // this should eventually be split out to be more helpful
 params.output = "${params.bindingDB}/output"
