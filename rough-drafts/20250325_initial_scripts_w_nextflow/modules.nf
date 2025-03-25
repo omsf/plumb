@@ -34,7 +34,7 @@ process DOWNLOAD_PDB {
     """
 }
 process PREP_CIF {
-    publishDir "${params.output}", mode: 'copy', overwrite: true
+    publishDir "${params.output}", mode: 'copy', overwrite: true, saveAs: {fn -> "${uuid}_${fn}"}
     conda "${params.asap}"
     tag "${uuid}"
     clusterOptions '--partition cpushort'
@@ -55,7 +55,7 @@ process PREP_CIF {
     """
 }
 process PREP_FOR_DOCKING {
-    publishDir "${params.output}", mode: 'copy', overwrite: true
+    publishDir "${params.output}", mode: 'copy', overwrite: true, saveAs: {fn -> "${uuid}_${fn}"}
     conda "${params.asap}"
     tag "${uuid}"
     clusterOptions '--partition cpushort'
@@ -75,7 +75,7 @@ process PREP_FOR_DOCKING {
     """
 }
 process ASSESS_PREPPED_PROTEIN {
-    publishDir "${params.output}", mode: 'copy', overwrite: true
+    publishDir "${params.output}", mode: 'copy', overwrite: true, saveAs: {fn -> "${uuid}_${fn}"}
     conda "${params.asap}"
     tag "${uuid}"
     clusterOptions '--partition cpushort'
@@ -92,7 +92,7 @@ process ASSESS_PREPPED_PROTEIN {
     """
 }
 process GENERATE_CONSTRAINED_LIGAND_POSES {
-    publishDir "${params.output}", mode: 'copy', overwrite: true
+    publishDir "${params.output}", mode: 'copy', overwrite: true, saveAs: {fn -> "${uuid}_${fn}"}
     conda "${params.asap}"
     tag "${uuid}"
     clusterOptions '--partition cpushort'
@@ -110,7 +110,7 @@ process GENERATE_CONSTRAINED_LIGAND_POSES {
 
 }
 process MAKE_FEC_INPUTS {
-    publishDir "${params.output}/${uuid}", mode: 'copy', overwrite: true
+    publishDir "${params.output}/${uuid}", mode: 'copy', overwrite: true, saveAs: {fn -> "${uuid}_${fn}"}
     conda "${params.asap}"
     tag "${uuid}"
     clusterOptions '--partition cpushort'
