@@ -119,8 +119,8 @@ process MAKE_FEC_INPUTS {
     tuple val(uuid), path(posed_ligands, stageAs: "posed_ligands.sdf"), path(prepped_complex, stageAs: "prepped_complex.pdb")
 
     output:
-    tuple val(uuid), path("*.graphml"), emit: network_graph
-    tuple val(uuid), path("*.json"), emit: network_json
+    tuple val(uuid), path("*/*.graphml"), emit: network_graph
+    tuple val(uuid), path("*/*.json"), emit: network_json
 
     script:
     """
