@@ -109,3 +109,27 @@ process GENERATE_CONSTRAINED_LIGAND_POSES {
     """
 
 }
+process MAKE_FEC_INPUTS {
+    publishDir "${params.output}/${uuid}", mode: 'copy', overwrite: true
+    conda "${params.asap}"
+    tag "${uuid}"
+    clusterOptions '--partition cpushort'
+
+    input:
+    tuple val(uuid), path(posed_ligands, stageAs: "posed_ligands.sdf"), path(prepped_complex, stageAs: "prepped_complex.pdb")
+
+    output:
+    tuple val(uuid), path("*.graphml"), emit: network_graph
+    tuple val(uuid), path("*.json"), emit: network_json
+
+    script:
+    """
+    asap-cli alchemy create fecs-workflow.json
+
+    asap-cli alchemy plan \
+    -f fecs-workflow.json \
+    --name ${uuid} \
+    --receptor "${prepped_complex}" \
+    --ligands "${posed_ligands}" \
+    """
+}

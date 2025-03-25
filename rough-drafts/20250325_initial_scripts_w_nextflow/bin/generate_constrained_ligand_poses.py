@@ -23,7 +23,8 @@ def get_args():
     parser.add_argument(
         "--output-dir",
         type=Path,
-        required=True,
+        required=False,
+        default="./",
         help="Path to the output directory where the results will be stored",
     )
     return parser.parse_args()

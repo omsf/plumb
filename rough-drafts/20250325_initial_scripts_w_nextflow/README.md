@@ -3,4 +3,5 @@
 - nextflow-ized all the scripts
 ## Unsolved Problems
 
+- [ ] congeneric inputs are currently hardcoded
 - [ ]
