@@ -3,6 +3,8 @@ import groovy.json.JsonSlurper
 params.projectDir = "/data1/choderaj/paynea/plumb/rough-drafts/20250325_initial_scripts_w_nextflow"
 params.scripts = "${params.projectDir}/bin"
 params.bindingDB = "/data1/choderaj/paynea/plumb_binding_db/BindingDBValidationSets-1/test"
+// hacky way to get around needing to learn to read FASTA from cif
+params.fasta = "MENFQKVEKIGEGTYGVVYKARNKLTGEVVALKKIRLDTETEGVPSTAIREISLLKELNHPNIVKLLDVIHTENKLYLVFEFLHQDLKKFMDASALTGIPLPLIKSYLFQLLQGLAFCHSHRVLHRDLKPQNLLINTEGAIKLADFGLARAFGVPVRTYTHEVVTLWYRAPEILLGCKYYSTAVDIWSLGCIFAEMVTRRALFPGDSEIDQLFRIFRTLGTPDEVVWPGVTSMPDYKPSFPKWARQDFSKVVPPLDEDGRSLLSQMLHYDPNKRISAKAALAHPFFQDVTKPVPHLRL"
 params.output = "${params.bindingDB}/output"
 
 // Conda Envs
@@ -16,7 +18,8 @@ params.take = -1
  */
 include {
 PROCESS_BINDINGDB;
-DOWNLOAD_PDB
+DOWNLOAD_PDB;
+PREP_CIF
 } from "./modules.nf"
 
 workflow {
@@ -29,4 +32,5 @@ workflow {
     // Only download one for testing
 //     DOWNLOAD_PDB(unique_jsons.filter{value -> value[0] == "6702"})
     DOWNLOAD_PDB(unique_jsons)
+    PREP_CIF(DOWNLOAD_PDB.out.input_cif, DOWNLOAD_PDB.out.record_json)
 }

@@ -24,6 +24,7 @@ def parse_args():
     parser.add_argument(
         "--input-json",
     )
+    parser.add_argument("--input-cif", type=Path, help="Path to input CIF file")
     parser.add_argument("--fasta-sequence", type=str, help="Fasta sequence")
     parser.add_argument("--loop-db", type=Path, help="Path to loop database")
     parser.add_argument("--output-dir", type=Path, default="./", help="Path to the output directory.")
@@ -197,7 +198,7 @@ def main():
     with open(args.input_json, "r") as f:
         record_dict = json.load(f)
 
-    graphmol = load_openeye_cif1(record_dict['cif'])
+    graphmol = load_openeye_cif1(args.input_cif)
 
     # this is what you would do if you didn't want to use whatever ligand is in the protein
     # split_dict = split_openeye_mol(graphmol, keep_one_lig=False)
