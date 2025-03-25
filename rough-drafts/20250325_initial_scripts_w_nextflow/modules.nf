@@ -133,3 +133,20 @@ process MAKE_FEC_INPUTS {
     --ligands "${posed_ligands}" \
     """
 }
+process VISUALIZE_NETWORK {
+    publishDir "${params.output}/${uuid}", mode: 'copy', overwrite: true
+    conda "${params.asap}"
+    tag "${uuid}"
+    clusterOptions '--partition cpushort'
+
+    input:
+    tuple val(uuid), path(network_graph, stageAs: "network.graphml")
+
+    output:
+    tuple val(uuid), path("*.png"), emit: network_png
+
+    script:
+    """
+    python "${params.scripts}/visualize_network.py" --network-graphml "${network_graph}"
+    """
+}

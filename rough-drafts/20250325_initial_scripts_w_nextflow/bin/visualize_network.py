@@ -8,7 +8,6 @@ from openfe.utils.atommapping_network_plotting import (
         plot_atommapping_network
     )
 from openfe.setup import LigandNetwork
-import matplotlib
 
 def get_args():
     parser = argparse.ArgumentParser(
