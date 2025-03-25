@@ -19,7 +19,8 @@ params.take = -1
 include {
 PROCESS_BINDINGDB;
 DOWNLOAD_PDB;
-PREP_CIF
+PREP_CIF;
+PREP_FOR_DOCKING
 } from "./modules.nf"
 
 workflow {
@@ -33,4 +34,5 @@ workflow {
 //     DOWNLOAD_PDB(unique_jsons.filter{value -> value[0] == "6702"})
     DOWNLOAD_PDB(unique_jsons)
     PREP_CIF(DOWNLOAD_PDB.out.input_cif.combine(DOWNLOAD_PDB.out.record_json, by:0))
+    PREP_FOR_DOCKING(PREP_CIF.out.prepped_pdb)
 }

@@ -55,3 +55,18 @@ process PREP_CIF {
     """
 
 }
+process PREP_FOR_DOCKING {
+    publishDir "${params.output}", mode: 'copy', overwrite: true
+    conda "${params.asap}"
+    tag "${uuid}"
+    clusterOptions '--partition cpushort'
+
+    input:
+    tuple val(uuid), path(prepped_pdb, stageAs: "prepped_complex.pdb")
+
+    output:
+    tuple val(uuid), path("*/*ligand.sdf"), emit: ligand_sdf
+    tuple val(uuid), path("*/*spruced_complex.pdb"), emit: prepped_pdb
+    tuple val(uuid), path("*/*.json"), emit: json_schema
+    tuple val(uuid), path("*/*.oedu"), emit: design_unit
+}
