@@ -91,3 +91,21 @@ process ASSESS_PREPPED_PROTEIN {
     python "${params.scripts}/assess_prepped_protein.py" --input-oedu "${design_unit}"
     """
 }
+process GENERATE_CONSTRAINED_LIGAND_POSES {
+    publishDir "${params.output}", mode: 'copy', overwrite: true
+    conda "${params.asap}"
+    tag "${uuid}"
+    clusterOptions '--partition cpushort'
+
+    input:
+    tuple val(uuid), path(input_ligands, stageAs: "input_ligands.sdf"), path(prepped_complex_json_schema, stageAs: "json_schema.json")
+
+    output:
+    tuple val(uuid), path("*.sdf"), emit: posed_ligands
+
+    script:
+    """
+    python "${params.scripts}/generate_constrained_ligand_poses.py" --input-sdf "${input_ligands}" --prepped-schema "${prepped_complex_json_schema}"
+    """
+
+}
