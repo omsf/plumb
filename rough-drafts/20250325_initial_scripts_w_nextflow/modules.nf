@@ -7,6 +7,8 @@ process PROCESS_BINDINGDB {
     output:
     path("*.json"), emit: input_json
     path("*.sdf"), emit: input_sdf
+    path("*.csv"), emit: input_csv
+    path("*.txt"), emit: input_txt
 
     script:
     """
