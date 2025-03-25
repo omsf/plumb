@@ -2,7 +2,7 @@ process PROCESS_BINDINGDB {
     publishDir "${params.output}", mode: 'copy', overwrite: true
     conda "${params.asap}"
     tag "process_bindingdb"
-    clusterOptions '--partition cpushort'
+    clusterOptions '--partition cpu'
 
     output:
     path("*.json"), emit: input_json
@@ -19,7 +19,7 @@ process DOWNLOAD_PDB {
     publishDir "${params.output}/${uuid}", mode: 'copy', overwrite: true
     conda "${params.asap}"
     tag "${uuid}"
-    clusterOptions '--partition cpushort'
+    clusterOptions '--partition cpu'
 
     input:
     tuple val(uuid), path(input_json, stageAs:"input.json")
@@ -37,7 +37,7 @@ process PREP_CIF {
     publishDir "${params.output}/${uuid}", mode: 'copy', overwrite: true
     conda "${params.asap}"
     tag "${uuid}"
-    clusterOptions '--partition cpushort'
+    clusterOptions '--partition cpu'
 
     input:
     tuple val(uuid), path(input_cif, stageAs:"input.cif"), path(input_json, stageAs:"input.json")
@@ -58,7 +58,7 @@ process PREP_FOR_DOCKING {
     publishDir "${params.output}/${uuid}", mode: 'copy', overwrite: true
     conda "${params.asap}"
     tag "${uuid}"
-    clusterOptions '--partition cpushort'
+    clusterOptions '--partition cpu'
 
     input:
     tuple val(uuid), path(prepped_pdb, stageAs: "prepped_complex.pdb")
@@ -78,7 +78,7 @@ process ASSESS_PREPPED_PROTEIN {
     publishDir "${params.output}/${uuid}", mode: 'copy', overwrite: true
     conda "${params.asap}"
     tag "${uuid}"
-    clusterOptions '--partition cpushort'
+    clusterOptions '--partition cpu'
 
     input:
     tuple val(uuid), path(design_unit, stageAs: "design_unit.oedu")
@@ -95,7 +95,7 @@ process GENERATE_CONSTRAINED_LIGAND_POSES {
     publishDir "${params.output}/${uuid}", mode: 'copy', overwrite: true
     conda "${params.asap}"
     tag "${uuid}"
-    clusterOptions '--partition cpushort'
+    clusterOptions '--partition cpu'
 
     input:
     tuple val(uuid), path(prepped_complex_json_schema, stageAs: "json_schema.json"), path(congeneric_series, stageAs: "congeneric_series.sdf")
@@ -113,7 +113,7 @@ process MAKE_FEC_INPUTS {
     publishDir "${params.output}/${uuid}", mode: 'copy', overwrite: true
     conda "${params.asap}"
     tag "${uuid}"
-    clusterOptions '--partition cpushort'
+    clusterOptions '--partition cpu'
 
     input:
     tuple val(uuid), path(posed_ligands, stageAs: "posed_ligands.sdf"), path(prepped_complex, stageAs: "prepped_complex.pdb")
@@ -137,7 +137,7 @@ process VISUALIZE_NETWORK {
     publishDir "${params.output}/${uuid}", mode: 'copy', overwrite: true
     conda "${params.asap}"
     tag "${uuid}"
-    clusterOptions '--partition cpushort'
+    clusterOptions '--partition cpu'
 
     input:
     tuple val(uuid), path(network_graph, stageAs: "network.graphml")

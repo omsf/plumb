@@ -38,6 +38,7 @@ class SpruceResults(DataModelAbstractBase):
     add_caps_success: bool = None
     place_hydrogens_success: bool
     error_message: str
+    sequence_dict: dict[str, str]
 
 
 def protein_sequence_from_fasta(pdb_id) -> dict[str, str]:
@@ -105,7 +106,7 @@ def get_protein_chains(mol: oechem.OEGraphMol):
     """
     return {res.GetChainID() for res in oechem.OEGetResidues(mol) if oechem.OEIsStandardProteinResidue(res)}
 
-def get_oe_structure_metadata_from_sequence_dict(mol: oechem.OEGraphMol, sequence_dict: dict[str, str]) -> oespruce.OEStructureMetadata:
+def get_oe_structure_metadata_from_sequence_dict(mol: oechem.OEGraphMol, sequence_dict: dict[str, str]) -> (oespruce.OEStructureMetadata, dict):
     """
     Read FASTA file and add sequence to structure metadata
     :param mol:
@@ -114,12 +115,15 @@ def get_oe_structure_metadata_from_sequence_dict(mol: oechem.OEGraphMol, sequenc
     """
     metadata = oespruce.OEStructureMetadata()
     all_prot_chains = get_protein_chains(mol)
+    revised_sequence_dict = {}
     for chain in all_prot_chains:
         seq_metadata = oespruce.OESequenceMetadata()
         seq_metadata.SetChainID(chain)
-        seq_metadata.SetSequence(sequence_dict[chain])
+        sequence = sequence_dict[chain]
+        seq_metadata.SetSequence(sequence)
         metadata.AddSequenceMetadata(seq_metadata)
-    return metadata
+        revised_sequence_dict[chain] = sequence
+    return metadata, revised_sequence_dict
 
 def spruce_protein(
     initial_prot: oechem.OEGraphMol,
@@ -178,7 +182,7 @@ def spruce_protein(
     # Don't build tails, too much work for little gain
     loop_opts.SetBuildTails(False)
 
-    metadata = get_oe_structure_metadata_from_sequence_dict(initial_prot, protein_sequence)
+    metadata, revised_sequence_dict = get_oe_structure_metadata_from_sequence_dict(initial_prot, protein_sequence)
 
     # Construct spruce filter
     grid = oegrid.OESkewGrid()
@@ -210,6 +214,7 @@ def spruce_protein(
             add_caps_success=add_caps_success,
             place_hydrogens_success=place_hydrogens_success,
             error_message=spruce_error_msg,
+            sequence_dict=protein_sequence,
         ),
         initial_prot,
     )
