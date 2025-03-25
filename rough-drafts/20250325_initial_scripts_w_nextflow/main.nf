@@ -27,5 +27,6 @@ workflow {
     input_files.map{json ->  tuple([new JsonSlurper().parseText(json.text)][0].get("BindingDB monomerid"), json)}
         .set{unique_jsons}
     // Only download one for testing
-    DOWNLOAD_PDB(unique_jsons.filter{value -> value[0] == "6702"})
+//     DOWNLOAD_PDB(unique_jsons.filter{value -> value[0] == "6702"})
+    DOWNLOAD_PDB(unique_jsons)
 }

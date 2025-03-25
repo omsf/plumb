@@ -16,6 +16,7 @@ process PROCESS_BINDINGDB {
     """
 }
 process DOWNLOAD_PDB {
+publishDir "${params.output}", mode: 'copy', overwrite: true
     conda "${params.asap}"
     tag "${uuid}"
     clusterOptions '--partition cpushort'
@@ -25,6 +26,7 @@ process DOWNLOAD_PDB {
 
     output:
     path("*.cif"), emit: input_cif
+    path("*.json"), emit: record
 
     script:
     """
