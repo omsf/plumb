@@ -2,7 +2,7 @@
 import groovy.json.JsonSlurper
 params.projectDir = "/data1/choderaj/paynea/plumb/rough-drafts/20250325_initial_scripts_w_nextflow"
 params.scripts = "${params.projectDir}/bin"
-params.bindingDB = "/data1/choderaj/paynea/plumb_binding_db/BindingDBValidationSets-1"
+params.bindingDB = "/data1/choderaj/paynea/plumb_binding_db/BindingDBValidationSets-1/test"
 params.output = "${params.bindingDB}/output"
 
 // Conda Envs
