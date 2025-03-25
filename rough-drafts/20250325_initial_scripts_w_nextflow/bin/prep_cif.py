@@ -27,7 +27,7 @@ def parse_args():
         "--input-json",
     )
     parser.add_argument("--input-cif", type=Path, help="Path to input CIF file")
-    parser.add_argument("--loop-db", type=Path, help="Path to loop database")
+    parser.add_argument("--loop-db", type=Path, required=True, help="Path to loop database")
     parser.add_argument("--output-dir", type=Path, default="./", help="Path to the output directory.")
     return parser.parse_args()
 

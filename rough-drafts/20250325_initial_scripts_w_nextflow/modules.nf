@@ -51,7 +51,7 @@ process PREP_CIF {
 
     script:
     """
-    python "${params.scripts}/prep_cif.py" --input-json "${input_json}" --input-cif "${input_cif}"
+    python "${params.scripts}/prep_cif.py" --input-json "${input_json}" --input-cif "${input_cif}" --loop-db "${params.loopDB}"
     """
 }
 process PREP_FOR_DOCKING {
