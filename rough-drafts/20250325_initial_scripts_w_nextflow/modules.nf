@@ -15,13 +15,17 @@ process PROCESS_BINDINGDB {
 }
 process DOWNLOAD_PDB {
     conda "${params.asap}"
-    tag "download_pdb"
+    tag "${uuid}"
     clusterOptions '--partition cpushort'
+
+    input:
+    tuple val(uuid), path(input_json, stageAs:"input.json")
 
     output:
     path("*.cif"), emit: input_cif
 
     script:
     """
-    python "${params.scripts}/download_pdb.py"
+    python "${params.scripts}/download_pdb.py" --input-json "${input_json}"
     """
+}
