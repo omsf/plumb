@@ -141,9 +141,8 @@ def spruce_protein(
     protein_sequence : dict
         The sequence of the protein for a single chain. This is will be added to the Structure Metadata before applying the OESpruce pipeline.
 
-    loop_db : str, optional
-        The filename of the loop database to be used by the OESpruce pipeline. If provided, the pipeline will include the loop building step.
-        Default is None.
+    loop_db : str
+        The filename of the loop database to be used by the OESpruce pipeline.
 
     Returns
     -------
@@ -260,6 +259,10 @@ def main():
 
     output_dir = args.output_dir
     output_dir.mkdir(exist_ok=True, parents=True)
+
+    loop_db = args.loop_db
+    if not loop_db.exists():
+        raise FileNotFoundError(f"Loop database not found at {loop_db}")
 
     with open(args.input_json, "r") as f:
         record_dict = json.load(f)
