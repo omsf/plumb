@@ -15,7 +15,8 @@ params.take = -1
  * Define the workflow
  */
 include {
-PROCESS_BINDINGDB
+PROCESS_BINDINGDB;
+DOWNLOAD_PDB
 } from "./modules.nf"
 
 workflow {
