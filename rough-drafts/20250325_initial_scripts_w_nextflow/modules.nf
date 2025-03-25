@@ -69,4 +69,9 @@ process PREP_FOR_DOCKING {
     tuple val(uuid), path("*/*spruced_complex.pdb"), emit: prepped_pdb
     tuple val(uuid), path("*/*.json"), emit: json_schema
     tuple val(uuid), path("*/*.oedu"), emit: design_unit
+
+    script:
+    """
+    asap-cli protein-prep --target SARS-CoV-2-Mpro --pdb-file "${prepped_pdb}"
+    """
 }
