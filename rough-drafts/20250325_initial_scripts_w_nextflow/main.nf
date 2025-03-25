@@ -20,7 +20,7 @@ PROCESS_BINDINGDB
 
 workflow {
     PROCESS_BINDINGDB()
-    PROCESS_BINDINGDB.out.input_json.flatten().take(params.take)
+    input_files = PROCESS_BINDINGDB.out.input_json.flatten().take(params.take)
 
     // Load in input json files and extract unique id from each and connect it to the json
     input_files.map{json ->  tuple([new JsonSlurper().parseText(json.text)][0].get("BindingDB monomerid"), json)}
