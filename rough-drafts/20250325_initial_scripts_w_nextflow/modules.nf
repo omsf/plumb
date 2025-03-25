@@ -53,7 +53,6 @@ process PREP_CIF {
     """
     python "${params.scripts}/prep_cif.py" --input-json "${input_json}" --input-cif "${input_cif}" --fasta-sequence "${params.fasta}"
     """
-
 }
 process PREP_FOR_DOCKING {
     publishDir "${params.output}", mode: 'copy', overwrite: true
@@ -72,6 +71,6 @@ process PREP_FOR_DOCKING {
 
     script:
     """
-    asap-cli protein-prep --target SARS-CoV-2-Mpro --pdb-file "${prepped_pdb}"
+    asap-cli protein-prep --target SARS-CoV-2-Mpro --pdb-file "${prepped_pdb}" --output-dir "${params.output}"
     """
 }
