@@ -128,7 +128,7 @@ process MAKE_FEC_INPUTS {
 
     asap-cli alchemy plan \
     -f fecs-workflow.json \
-    --name ${uuid} \
+    --name ${uuid}_plumb_alchemiscale_network \
     --receptor "${prepped_complex}" \
     --ligands "${posed_ligands}" \
     """
