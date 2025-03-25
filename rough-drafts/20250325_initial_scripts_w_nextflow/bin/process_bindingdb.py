@@ -26,7 +26,7 @@ def main():
     sdfs = list(args.input_dir.glob('*3D.sdf'))
 
     output = []
-    for sdf in tqdm(sdfs[:10]):
+    for sdf in sdfs:
 
         # asap function to read separate ligands from a multi-ligand sdf file
         mols: list[Ligand] = MolFileFactory(filename=sdf).load()
@@ -70,7 +70,8 @@ def main():
     # write out separate json records
     for record in df_3d.to_dict(orient='records'):
         with open(output_dir / f'{record["compound_name"]}.json', 'w') as f:
-            f.write(json.dumps(record, indent=4))
+            import math
+            f.write(json.dumps(record, indent=4, default=lambda x: None if math.isnan(x) else x))
 
 if __name__ == '__main__':
     main()
