@@ -71,6 +71,6 @@ process PREP_FOR_DOCKING {
 
     script:
     """
-    asap-cli protein-prep --target SARS-CoV-2-Mpro --pdb-file "${prepped_pdb}" --output-dir "${params.output}"
+    asap-cli protein-prep --target SARS-CoV-2-Mpro --pdb-file "${prepped_pdb}" --output-dir "./"
     """
 }
