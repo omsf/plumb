@@ -24,7 +24,9 @@ include {
 PROCESS_BINDINGDB;
 DOWNLOAD_PDB;
 PREP_CIF;
-PREP_FOR_DOCKING
+PREP_FOR_DOCKING;
+ASSESS_PREPPED_PROTEIN;
+GENERATE_CONSTRAINED_LIGAND_POSES;
 } from "./modules.nf"
 
 workflow {
@@ -39,4 +41,6 @@ workflow {
     DOWNLOAD_PDB(unique_jsons)
     PREP_CIF(DOWNLOAD_PDB.out.input_cif.combine(DOWNLOAD_PDB.out.record_json, by:0))
     PREP_FOR_DOCKING(PREP_CIF.out.prepped_pdb)
+    ASSESS_PREPPED_PROTEIN(PREP_FOR_DOCKING.out.design_unit)
+    GENERATE_CONSTRAINED_LIGAND_POSES(PREP_FOR_DOCKING.out.json_schema)
 }

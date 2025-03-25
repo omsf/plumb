@@ -98,14 +98,14 @@ process GENERATE_CONSTRAINED_LIGAND_POSES {
     clusterOptions '--partition cpushort'
 
     input:
-    tuple val(uuid), path(input_ligands, stageAs: "input_ligands.sdf"), path(prepped_complex_json_schema, stageAs: "json_schema.json")
+    tuple val(uuid), path(prepped_complex_json_schema, stageAs: "json_schema.json")
 
     output:
     tuple val(uuid), path("*.sdf"), emit: posed_ligands
 
     script:
     """
-    python "${params.scripts}/generate_constrained_ligand_poses.py" --input-sdf "${input_ligands}" --prepped-schema "${prepped_complex_json_schema}"
+    python "${params.scripts}/generate_constrained_ligand_poses.py" --input-sdf "${params.congenericSeries}" --prepped-schema "${prepped_complex_json_schema}"
     """
 
 }
