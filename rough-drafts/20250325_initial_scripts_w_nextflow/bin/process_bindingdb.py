@@ -36,26 +36,27 @@ def main():
         # there are some hidden choices here, for instance OpenEye is adding hydrogens which you might not want
 
         for mol in mols:
-            mol_dict = {'compound_name': mol.compound_name,
-                        'congeneric': str(sdf.absolute()),
-                        'has_3d': mol.to_oemol().GetDimension() == 3,
-                        'num_atoms': mol.to_oemol().NumAtoms(),
-                        'smiles': mol.smiles,
-                        'pdb_id': mol.tags.get('PDB ID ')[:4] if mol.tags.get('PDB ID ') else '',
-                        }
+            # if the PDB ID is not present, then this will be found later in the congeric file
+            if mol.tags.get('PDB ID '):
+                mol_dict = {'compound_name': mol.compound_name,
+                            'congeneric': str(sdf.absolute()),
+                            'has_3d': mol.to_oemol().GetDimension() == 3,
+                            'num_atoms': mol.to_oemol().NumAtoms(),
+                            'smiles': mol.smiles,
+                            'pdb_id': mol.tags.get('PDB ID ')[:4] if mol.tags.get('PDB ID ') else '',
+                            }
+                # any data in the SDF file is saved to the 'tags' attribute of an asapdiscovery Ligand object
+                mol_dict.update(mol.tags)
 
-            # any data in the SDF file is saved to the 'tags' attribute of an asapdiscovery Ligand object
-            mol_dict.update(mol.tags)
+                # write out sdf file
+                if mol_dict['has_3d']:
+                    mol.to_sdf(output_dir / f'{mol.compound_name}.sdf')
+                    unique_filenames.append(mol_dict['congeneric'])
 
-            # write out sdf file
-            if mol_dict['has_3d']:
-                mol.to_sdf(output_dir / f'{mol.compound_name}.sdf')
-                unique_filenames.append(mol_dict['congeneric'])
+                    with open(output_dir / f'{mol.compound_name}.json', 'w') as f:
+                        f.write(json.dumps(mol_dict, indent=4))
 
-                with open(output_dir / f'{mol.compound_name}.json', 'w') as f:
-                    f.write(json.dumps(mol_dict, indent=4))
-
-            output.append(mol_dict)
+                output.append(mol_dict)
 
     df = pd.DataFrame.from_records(output)
     df.to_csv(output_dir / 'processed_bindingdb.csv', index=False)
