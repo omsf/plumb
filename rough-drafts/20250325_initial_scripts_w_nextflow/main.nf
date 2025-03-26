@@ -11,6 +11,9 @@ params.output = "${params.bindingDB}/output"
 // Conda Envs
 params.asap = "/home/paynea/miniforge3/envs/asap2025"
 
+// Add the name of the process as a string and it will turn off caching for that process
+params.restart_from = null
+
 // Flags
 params.take = -1
 

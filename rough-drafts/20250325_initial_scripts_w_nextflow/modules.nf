@@ -3,6 +3,7 @@ process PROCESS_BINDINGDB {
     conda "${params.asap}"
     tag "process_bindingdb"
     clusterOptions '--partition cpu'
+    cache 'true' if params.restart_from != "PROCESS_BINDINGDB"
 
     output:
     path("*.json"), emit: input_json
@@ -20,6 +21,7 @@ process DOWNLOAD_PDB {
     conda "${params.asap}"
     tag "${uuid}"
     clusterOptions '--partition cpu'
+    cache 'true' if params.restart_from != "DOWNLOAD_PDB"
 
     input:
     tuple val(uuid), path(input_json, stageAs:"input.json")
@@ -39,7 +41,8 @@ process PREP_CIF {
     tag "${uuid}"
     clusterOptions '--partition cpu'
     errorStrategy 'ignore'
-    cache 'false'
+    cache 'true' if params.restart_from != "PREP_CIF"
+
 
     input:
     tuple val(uuid), path(input_cif, stageAs:"input.cif"), path(input_json, stageAs:"input.json")
@@ -61,6 +64,7 @@ process PREP_FOR_DOCKING {
     conda "${params.asap}"
     tag "${uuid}"
     clusterOptions '--partition cpu'
+    cache 'true' if params.restart_from != "PREP_FOR_DOCKING"
 
     input:
     tuple val(uuid), path(prepped_pdb, stageAs: "prepped_complex.pdb")
