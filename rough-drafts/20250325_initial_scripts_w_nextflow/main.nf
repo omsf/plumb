@@ -2,13 +2,8 @@
 import groovy.json.JsonSlurper
 params.projectDir = "/data1/choderaj/paynea/plumb/rough-drafts/20250325_initial_scripts_w_nextflow"
 params.scripts = "${params.projectDir}/bin"
-params.bindingDB = "/data1/choderaj/paynea/plumb_binding_db/BindingDBValidationSets-1/test"
+params.bindingDB = "/data1/choderaj/paynea/plumb_binding_db/BindingDBValidationSets-1"
 params.loopDB = "/data1/choderaj/asap-playground/rcsb_spruce.loop_db"
-
-// hacky way to get around needing to learn to read FASTA from cif
-// params.fasta = "MENFQKVEKIGEGTYGVVYKARNKLTGEVVALKKIRLDTETEGVPSTAIREISLLKELNHPNIVKLLDVIHTENKLYLVFEFLHQDLKKFMDASALTGIPLPLIKSYLFQLLQGLAFCHSHRVLHRDLKPQNLLINTEGAIKLADFGLARAFGVPVRTYTHEVVTLWYRAPEILLGCKYYSTAVDIWSLGCIFAEMVTRRALFPGDSEIDQLFRIFRTLGTPDEVVWPGVTSMPDYKPSFPKWARQDFSKVVPPLDEDGRSLLSQMLHYDPNKRISAKAALAHPFFQDVTKPVPHLRL"
-// this being hard coded is bad but it should be easy to automate tying this sdf file to the uuid and then each one can be passed separately
-// params.congenericSeries = "${params.bindingDB}/1YKR_Validation_Affinities_3D.sdf"
 
 // this should eventually be split out to be more helpful
 params.output = "${params.bindingDB}/output"
