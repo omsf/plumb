@@ -26,6 +26,7 @@ def main():
     sdfs = list(args.input_dir.glob('*3D.sdf'))
 
     output = []
+    unique_filenames = []
     for sdf in sdfs:
 
         # asap function to read separate ligands from a multi-ligand sdf file
@@ -49,29 +50,20 @@ def main():
             # write out sdf file
             if mol_dict['has_3d']:
                 mol.to_sdf(output_dir / f'{mol.compound_name}.sdf')
+                unique_filenames.append(mol_dict['congeneric'])
+
+                with open(output_dir / f'{mol.compound_name}.json', 'w') as f:
+                    f.write(json.dumps(mol_dict, indent=4))
 
             output.append(mol_dict)
 
     df = pd.DataFrame.from_records(output)
     df.to_csv(output_dir / 'processed_bindingdb.csv', index=False)
 
-    # write separate csvs for 2D and 3D
-    df_2d = df[~df['has_3d']]
-    df_3d = df[df['has_3d']]
-    df_2d.to_csv(output_dir / '2d_bindingdb.csv', index=False)
-    df_3d.to_csv(output_dir / '3d_bindingdb.csv', index=False)
-
     # get unique sdf filenames with 3D coordinates
-    unique_sdf_filenames = df_3d['congeneric'].unique()
     with open(output_dir / 'unique_3D_sdf_filenames.txt', 'w') as f:
-        for filename in unique_sdf_filenames:
+        for filename in unique_filenames:
             f.write(f'{filename}\n')
-
-    # write out separate json records
-    for record in df_3d.to_dict(orient='records'):
-        with open(output_dir / f'{record["compound_name"]}.json', 'w') as f:
-            import math
-            f.write(json.dumps(record, indent=4, allow_nan=False, default=lambda x: None if math.isnan(x) else x))
 
 if __name__ == '__main__':
     main()
