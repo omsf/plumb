@@ -115,6 +115,16 @@ def get_oe_structure_metadata_from_sequence_dict(mol: oechem.OEGraphMol, sequenc
     """
     metadata = oespruce.OEStructureMetadata()
     all_prot_chains = get_protein_chains(mol)
+
+    print(f"Protein chains found in structure: {all_prot_chains}")
+    print(f"Protein chains found in sequence: {sequence_dict.keys()}")
+
+    if not all_prot_chains.issubset(sequence_dict.keys()):
+        # raise ValueError("Protein chains in structure do not match protein chains in sequence")
+        if len(sequence_dict) == 1:
+            print("Only one chain in sequence, assuming it is the correct chain")
+            sequence_dict.update({chain: sequence_dict[list(sequence_dict.keys())[0]] for chain in all_prot_chains})
+
     revised_sequence_dict = {}
     for chain in all_prot_chains:
         seq_metadata = oespruce.OESequenceMetadata()
@@ -309,4 +319,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sequence = protein_sequence_from_fasta('2qn1')
+    mol = load_openeye_cif1(Path('/Users/alexpayne/Downloads/rcsb_2qn1-assembly1.cif'))
+    metadata, revised_sequence_dict = get_oe_structure_metadata_from_sequence_dict(mol, sequence)
+    print(sequence)
