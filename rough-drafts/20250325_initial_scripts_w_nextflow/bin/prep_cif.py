@@ -319,7 +319,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sequence = protein_sequence_from_fasta('2qn1')
-    mol = load_openeye_cif1(Path('/Users/alexpayne/Downloads/rcsb_2qn1-assembly1.cif'))
-    metadata, revised_sequence_dict = get_oe_structure_metadata_from_sequence_dict(mol, sequence)
-    print(sequence)
+    main()
