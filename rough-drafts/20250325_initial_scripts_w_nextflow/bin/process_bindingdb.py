@@ -71,7 +71,7 @@ def main():
     for record in df_3d.to_dict(orient='records'):
         with open(output_dir / f'{record["compound_name"]}.json', 'w') as f:
             import math
-            f.write(json.dumps(record, indent=4, default=lambda x: None if math.isnan(x) else x))
+            f.write(json.dumps(record, indent=4, allow_nan=False, default=lambda x: None if math.isnan(x) else x))
 
 if __name__ == '__main__':
     main()
