@@ -39,7 +39,7 @@ process PREP_CIF {
     tag "${uuid}"
     clusterOptions '--partition cpu'
     errorStrategy 'ignore'
-    process.cache 'false'
+    cache 'false'
 
     input:
     tuple val(uuid), path(input_cif, stageAs:"input.cif"), path(input_json, stageAs:"input.json")
