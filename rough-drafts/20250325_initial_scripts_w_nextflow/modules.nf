@@ -38,6 +38,7 @@ process PREP_CIF {
     conda "${params.asap}"
     tag "${uuid}"
     clusterOptions '--partition cpu'
+    errorStrategy 'ignore'
 
     input:
     tuple val(uuid), path(input_cif, stageAs:"input.cif"), path(input_json, stageAs:"input.json")
