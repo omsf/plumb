@@ -1,8 +1,10 @@
 #!/usr/bin/env nextflow
 import groovy.json.JsonSlurper
-params.projectDir = "/data1/choderaj/paynea/plumb/rough-drafts/20250325_initial_scripts_w_nextflow"
+// params.projectDir = "/data1/choderaj/paynea/plumb/rough-drafts/20250325_initial_scripts_w_nextflow"
+params.projectDir = "/home/brennera/mystore/code/nf-core-plumb/rough-drafts/20250325_initial_scripts_w_nextflow"
 params.scripts = "${params.projectDir}/bin"
-params.bindingDB = "/data1/choderaj/paynea/plumb_binding_db/BindingDBValidationSets-1/test"
+// params.bindingDB = "/data1/choderaj/paynea/plumb_binding_db/BindingDBValidationSets-1/test"
+params.bindingDB = "/home/brennera/mystore/data/bind_db/testing_subset"
 
 // hacky way to get around needing to learn to read FASTA from cif
 params.fasta = "MENFQKVEKIGEGTYGVVYKARNKLTGEVVALKKIRLDTETEGVPSTAIREISLLKELNHPNIVKLLDVIHTENKLYLVFEFLHQDLKKFMDASALTGIPLPLIKSYLFQLLQGLAFCHSHRVLHRDLKPQNLLINTEGAIKLADFGLARAFGVPVRTYTHEVVTLWYRAPEILLGCKYYSTAVDIWSLGCIFAEMVTRRALFPGDSEIDQLFRIFRTLGTPDEVVWPGVTSMPDYKPSFPKWARQDFSKVVPPLDEDGRSLLSQMLHYDPNKRISAKAALAHPFFQDVTKPVPHLRL"
@@ -13,7 +15,8 @@ params.congenericSeries = "${params.bindingDB}/1YKR_Validation_Affinities_3D.sdf
 params.output = "${params.bindingDB}/output"
 
 // Conda Envs
-params.asap = "/home/paynea/miniforge3/envs/asap2025"
+// params.asap = "/home/paynea/miniforge3/envs/asap2025"
+params.asap = "/home/brennera/miniconda3/envs/asapdiscovery"
 
 // Flags
 params.take = -1
