@@ -1,130 +1,55 @@
 #!/usr/bin/env nextflow
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    nf-core/plumb
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/nf-core/plumb
-    Website: https://nf-co.re/plumb
-    Slack  : https://nfcore.slack.com/channels/plumb
-----------------------------------------------------------------------------------------
-*/
+import groovy.json.JsonSlurper
+// params.projectDir = "/data1/choderaj/paynea/plumb/rough-drafts/20250325_initial_scripts_w_nextflow"
+params.projectDir = "/home/brennera/mystore/code/nf-core-plumb/"
+params.scripts = "${params.projectDir}/bin"
+// params.bindingDB = "/data1/choderaj/paynea/plumb_binding_db/BindingDBValidationSets-1/test"
+params.bindingDB = "/home/brennera/mystore/data/bind_db/testing_subset"
 
+// hacky way to get around needing to learn to read FASTA from cif
+params.fasta = "MENFQKVEKIGEGTYGVVYKARNKLTGEVVALKKIRLDTETEGVPSTAIREISLLKELNHPNIVKLLDVIHTENKLYLVFEFLHQDLKKFMDASALTGIPLPLIKSYLFQLLQGLAFCHSHRVLHRDLKPQNLLINTEGAIKLADFGLARAFGVPVRTYTHEVVTLWYRAPEILLGCKYYSTAVDIWSLGCIFAEMVTRRALFPGDSEIDQLFRIFRTLGTPDEVVWPGVTSMPDYKPSFPKWARQDFSKVVPPLDEDGRSLLSQMLHYDPNKRISAKAALAHPFFQDVTKPVPHLRL"
+// this being hard coded is bad but it should be easy to automate tying this sdf file to the uuid and then each one can be passed separately
+params.congenericSeries = "${params.bindingDB}/1YKR_Validation_Affinities_3D.sdf"
 
-/*
-Need to move these params to config file
-*/
-params.pdbDatabase = "/data1/choderaj/paynea/openproteinsim_plinder/test_set_26092024/combined"
-params.structureParquet = "/data1/choderaj/paynea/openproteinsim_plinder/test_set_26092024/info.parquet"
+// this should eventually be split out to be more helpful
+params.output = "${params.bindingDB}/output"
 
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    IMPORT FUNCTIONS / MODULES / SUBWORKFLOWS / WORKFLOWS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
+// Conda Envs
+// params.asap = "/home/paynea/miniforge3/envs/asap2025"
+params.asap = "/home/brennera/miniconda3/envs/asapdiscovery"
 
-include { PLUMB  } from './workflows/plumb'
-include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_plumb_pipeline'
-include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_plumb_pipeline'
-// Include modules
-include { PRINT_STRATEGY } from './modules/local/messages/main.nf'
-include {PROCESS_INPUT } from './modules/local/prep_dock/main.nf'
-include {DOWNLOAD_BINDINGDB } from './modules/local/import/main.nf'
-include {PROCESS_BINDINGDB } from './modules/local/import/main.nf'
-include {PROCESS_BINDINGDB_W_CH } from './modules/local/import/main.nf'
+// Flags
+params.take = -1
 
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    NAMED WORKFLOWS FOR PIPELINE
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-//
-// WORKFLOW: Run main analysis pipeline depending on type of input
-//
-workflow NFCORE_PLUMB {
-
-    take:
-    samplesheet // channel: samplesheet read in from --input
-
-    main:
-
-    //
-    // WORKFLOW: Run pipeline
-    //
-    PLUMB (
-        samplesheet
-    )
-}
-
-/*
-~~~~~~~~~~~~~~~~
-ABC customizations from tutorial
-~~~~~~~~~~~~~~~~
-*/
-/*
- * Use echo to print 'Hello World!' to standard out
+ * Define the workflow
  */
-
-
-
-
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    RUN MAIN WORKFLOW
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
+include {
+PROCESS_BINDINGDB;
+DOWNLOAD_PDB;
+PREP_CIF;
+PREP_FOR_DOCKING;
+ASSESS_PREPPED_PROTEIN;
+GENERATE_CONSTRAINED_LIGAND_POSES;
+MAKE_FEC_INPUTS;
+VISUALIZE_NETWORK;
+} from "./modules.nf"
 
 workflow {
-    // dock_ch = Channel.of(params.docking)
-    // dist_ch = Channel.of(params.pocket_dist)
-    // printStrategy(dock_ch, dist_ch)
-    // DOWNLOAD_BINDINGDB()
-    PRINT_STRATEGY(params.docking, params.pocket_dist)
-    input_dir = file(projectDir).resolve("raw_data/binding_db") 
-    PROCESS_BINDINGDB(input_dir)
-    // Define an input channel with a clear name
-    // Channel.fromPath("${projectDir}/raw_data/binding_db/*3D.sdf")  // Creates a channel from all matching SDF files
-    //     | map { file(it) }  // Converts each path string to a Nextflow file object
-    //     | PROCESS_BINDINGDB_W_CH  // Sends each file as input to the process
+    // Output is only written into the work directory, not saved anywhere obvious
+    PROCESS_BINDINGDB()
+    input_files = PROCESS_BINDINGDB.out.input_json.flatten().take(params.take)
 
-
-    // PROCESS_INPUT()
-
-    // main:
-    //
-    // SUBWORKFLOW: Run initialisation tasks
-    //
-    // PIPELINE_INITIALISATION (
-    //     params.version,
-    //     params.validate_params,
-    //     params.monochrome_logs,
-    //     args,
-    //     params.outdir,
-    //     params.input
-    // )
-
-    // //
-    // // WORKFLOW: Run main workflow
-    // //
-    // NFCORE_PLUMB (
-    //     PIPELINE_INITIALISATION.out.samplesheet
-    // )
-    // //
-    // // SUBWORKFLOW: Run completion tasks
-    // //
-    // PIPELINE_COMPLETION (
-    //     params.email,
-    //     params.email_on_fail,
-    //     params.plaintext_email,
-    //     params.outdir,
-    //     params.monochrome_logs,
-    //     params.hook_url,
-    // )
+    // Load in input json files and extract unique id from each and connect it to the json
+    input_files.map{json ->  tuple([new JsonSlurper().parseText(json.text)][0].get("BindingDB monomerid"), json)}
+        .set{unique_jsons}
+    unique_jsons.view()
+    // Spruce is not compatible with the file I download
+    DOWNLOAD_PDB(unique_jsons)
+    // PREP_CIF(DOWNLOAD_PDB.out.input_cif.combine(DOWNLOAD_PDB.out.record_json, by:0))
+    // PREP_FOR_DOCKING(PREP_CIF.out.prepped_pdb)
+    // ASSESS_PREPPED_PROTEIN(PREP_FOR_DOCKING.out.design_unit)
+    // GENERATE_CONSTRAINED_LIGAND_POSES(PREP_FOR_DOCKING.out.json_schema)
+    // MAKE_FEC_INPUTS(GENERATE_CONSTRAINED_LIGAND_POSES.out.posed_ligands.combine(PREP_FOR_DOCKING.out.prepped_pdb, by:0))
+    // VISUALIZE_NETWORK(MAKE_FEC_INPUTS.out.network_graph)
 }
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    THE END
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
