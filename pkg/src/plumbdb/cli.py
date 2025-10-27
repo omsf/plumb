@@ -70,3 +70,44 @@ def assess_prepped_protein(output_directory, input_openeye_du):
 
     with open(output_directory / f"{stem}_quality_report.json", "w") as f:
         json.dump(report, f, indent=4)
+
+
+# TODO: check for openeye installation, maybe make it a decorator
+@cli.command(
+    "generate-constrained-ligand-poses",
+    help="Generate constrained ligand poses using OpenEye tooling.",
+)
+@click.option("input_sdf", "-i", "--input-sdf", required=True, type=str)
+@click.option("prepped_schema", "-s", "--prepped-schema", type=str)
+@click.option("output_directory", "-d", "--output-directory")
+def generate_constrained_ligand_poses(input_sdf, prepped_schema, output_directory):
+    try:
+        from asapdiscovery.data.schema.complex import PreppedComplex
+        from asapdiscovery.data.readers.molfile import MolFileFactory
+        from asapdiscovery.data.schema.ligand import Ligand
+        from asapdiscovery.docking.schema.pose_generation import (
+            OpenEyeConstrainedPoseGenerator,
+        )
+        from asapdiscovery.data.backend.openeye import save_openeye_sdfs
+    except ModuleNotFoundError:
+        raise click.UsageError("Could not import openeye")
+
+    raw_ligands = MolFileFactory(filename=input_sdf).load()
+
+    # reconstruct ligands from smiles because of some weirdness with the sdf files
+    ligs = [
+        Ligand.from_smiles(
+            compound_name=lig.tags["BindingDB monomerid"],
+            smiles=lig.smiles,
+            tags=lig.dict(),
+        )
+        for lig in raw_ligands
+    ]
+
+    prepped_complex = PreppedComplex.parse_file(prepped_schema)
+
+    poser = OpenEyeConstrainedPoseGenerator()
+    poses = poser.generate_poses(prepped_complex, ligands=ligs)
+    oemols = [ligand.to_oemol() for ligand in poses.posed_ligands]
+    # save to sdf file
+    save_openeye_sdfs(oemols, output_directory / "poses.sdf")
