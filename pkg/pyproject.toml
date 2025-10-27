@@ -23,5 +23,8 @@ classifiers = [
 requires-python = ">= 3.13"
 dynamic = ["version"]
 
+[project.scripts]
+plumbline = "plumbdb.cli:cli"
+
 [project.optional-dependencies]
 test = ["pytest"]
