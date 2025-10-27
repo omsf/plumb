@@ -28,3 +28,4 @@ plumbline = "plumbdb.cli:cli"
 
 [project.optional-dependencies]
 test = ["pytest"]
+dev = ["pytest", "ruff"]
