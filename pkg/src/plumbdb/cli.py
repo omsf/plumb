@@ -111,3 +111,18 @@ def generate_constrained_ligand_poses(input_sdf, prepped_schema, output_director
     oemols = [ligand.to_oemol() for ligand in poses.posed_ligands]
     # save to sdf file
     save_openeye_sdfs(oemols, output_directory / "poses.sdf")
+
+
+@cli.command("prep-cif")
+def prep_cif():
+    raise NotImplementedError
+
+
+@cli.command("process-bindingdb")
+def process_bindingdb():
+    raise NotImplementedError
+
+
+@cli.command("visualize-network")
+def visualize_network():
+    raise NotImplementedError
