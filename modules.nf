@@ -12,7 +12,9 @@ process PROCESS_BINDINGDB {
 
     script:
     """
-    python "${params.scripts}/process_bindingdb.py" --input-dir "${params.bindingDB}"
+    plumbline process-bindingdb \
+    	      --input-directory "${params.bindingDB}" \
+	      --output-directory "./"
     """
 }
 process DOWNLOAD_PDB {
@@ -30,7 +32,8 @@ process DOWNLOAD_PDB {
 
     script:
     """
-    python "${params.scripts}/download_pdb.py" --input-json "${input_json}"
+    plumbline download-pdb \
+    	      --input-file "${input_json}"
     """
 }
 process PREP_CIF {
@@ -51,7 +54,11 @@ process PREP_CIF {
 
     script:
     """
-    python "${params.scripts}/prep_cif.py" --input-json "${input_json}" --input-cif "${input_cif}" --fasta-sequence "${params.fasta}"
+    plumbline prep-cif \
+    	      --input-json "${input_json}" \
+    	      --input-cif "${input_cif}" \
+	      --fasta-sequence "${params.fasta}" \
+	      --output-directory "./"
     """
 }
 process PREP_FOR_DOCKING {
@@ -71,7 +78,10 @@ process PREP_FOR_DOCKING {
 
     script:
     """
-    asap-cli protein-prep --target SARS-CoV-2-Mpro --pdb-file "${prepped_pdb}" --output-dir "./"
+    asap-cli protein-prep \
+    	     --target SARS-CoV-2-Mpro \
+	     --pdb-file "${prepped_pdb}" \
+	     --output-dir "./"
     """
 }
 process ASSESS_PREPPED_PROTEIN {
@@ -88,7 +98,9 @@ process ASSESS_PREPPED_PROTEIN {
 
     script:
     """
-    python "${params.scripts}/assess_prepped_protein.py" --input-oedu "${design_unit}"
+    plumbline assess-prepped-protein \
+    	      --input-file "${design_unit}" \
+	      --output-directory "./"
     """
 }
 process GENERATE_CONSTRAINED_LIGAND_POSES {
@@ -105,7 +117,10 @@ process GENERATE_CONSTRAINED_LIGAND_POSES {
 
     script:
     """
-    python "${params.scripts}/generate_constrained_ligand_poses.py" --input-sdf "${params.congenericSeries}" --prepped-schema "${prepped_complex_json_schema}"
+    plumbline generate-constrained-ligand-poses \
+    	      --input-sdf "${params.congenericSeries}" \
+	      --prepped-schema "${prepped_complex_json_schema}" \
+	      --output-directory "./"
     """
 
 }
@@ -127,10 +142,10 @@ process MAKE_FEC_INPUTS {
     asap-cli alchemy create fecs-workflow.json
 
     asap-cli alchemy plan \
-    -f fecs-workflow.json \
-    --name ${uuid}_plumb_alchemiscale_network \
-    --receptor "${prepped_complex}" \
-    --ligands "${posed_ligands}" \
+    	     -f fecs-workflow.json \
+    	     --name ${uuid}_plumb_alchemiscale_network \
+    	     --receptor "${prepped_complex}" \
+    	     --ligands "${posed_ligands}" \
     """
 }
 process VISUALIZE_NETWORK {
@@ -147,6 +162,8 @@ process VISUALIZE_NETWORK {
 
     script:
     """
-    python "${params.scripts}/visualize_network.py" --network-graphml "${network_graph}"
+    plumbline visualize-network \
+    	      --network-graphml "${network_graph}" \
+	      --output-directory "./"
     """
 }

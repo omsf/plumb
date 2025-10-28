@@ -1,23 +1,15 @@
-from pathlib import Path
-import json
+import pathlib
 
 from asapdiscovery.data.schema.schema_base import DataModelAbstractBase
 from asapdiscovery.data.backend.openeye import (
     oespruce,
     oechem,
     oegrid,
-    load_openeye_cif1,
 )
 from asapdiscovery.modeling.modeling import (
-    split_openeye_mol,
-    spruce_protein,
     get_oe_structure_metadata_from_sequence,
     openeye_perceive_residues,
 )
-from asapdiscovery.data.schema.target import Target
-from asapdiscovery.data.schema.ligand import Ligand
-
-from asapdiscovery.data.schema.complex import Complex
 
 
 class SpruceResults(DataModelAbstractBase):
@@ -28,10 +20,11 @@ class SpruceResults(DataModelAbstractBase):
     error_message: str
 
 
+# TODO: this was originally defined in asapdiscovery.modeling.modeling?
 def spruce_protein(
     initial_prot: oechem.OEGraphMol,
     protein_sequence: str = None,
-    loop_db: Path = None,
+    loop_db: pathlib.Path = None,
 ) -> oechem.OEDesignUnit or oechem.OEGraphMol:
     """
     Applies the OESpruce protein preparation pipeline to the given protein structure.

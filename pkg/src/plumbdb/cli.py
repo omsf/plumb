@@ -9,11 +9,12 @@ def cli():
     pass
 
 
+# TODO: input file type can be better defined
 @cli.command(name="download-pdb", help="Download PDB files from the PDB database.")
-@click.option("-i", "--input-file", required=True)
+@click.option("-i", "--input-file", type=str, required=True)
 @click.option(
     "output_directory",
-    "-d",
+    "-o",
     "--output-directory",
     type=click.Path(file_okay=False, dir_okay=True, path_type=pathlib.Path),
     required=True,
@@ -38,7 +39,7 @@ def download_pdb_structure(input_file, output_directory):
 )
 @click.option(
     "output_directory",
-    "-d",
+    "-o",
     "--output-directory",
     type=click.Path(file_okay=False, dir_okay=True, path_type=pathlib.Path),
     required=True,
@@ -57,7 +58,7 @@ def assess_prepped_protein(output_directory, input_openeye_du):
     du = load_openeye_design_unit(input_openeye_du)
 
     # should use a different id method
-    stem = Path(input_openeye_du).stem
+    stem = pathlib.Path(input_openeye_du).stem
     validator = oespruce.OEValidateDesignUnit()
     err_msgs = validator.GetMessages(validator.Validate(du))
     sq = du.GetStructureQuality()
@@ -79,7 +80,13 @@ def assess_prepped_protein(output_directory, input_openeye_du):
 )
 @click.option("input_sdf", "-i", "--input-sdf", required=True, type=str)
 @click.option("prepped_schema", "-s", "--prepped-schema", type=str)
-@click.option("output_directory", "-d", "--output-directory")
+@click.option(
+    "output_directory",
+    "-o",
+    "--output-directory",
+    type=click.Path(file_okay=False, dir_okay=True, path_type=pathlib.Path),
+    required=True,
+)
 def generate_constrained_ligand_poses(input_sdf, prepped_schema, output_directory):
     try:
         from asapdiscovery.data.schema.complex import PreppedComplex
@@ -116,11 +123,13 @@ def generate_constrained_ligand_poses(input_sdf, prepped_schema, output_director
 @cli.command("prep-cif")
 @click.option("input_json", "-j", "--input-json", type=str, required=True)
 @click.option("input_cif", "-c", "--input-cif", type=str, required=True)
-@click.option("fasta_sequence", "-f", "--fasta-sequence", type=str, required=True)
+@click.option(
+    "fasta_sequence", "-f", "--fasta-sequence", type=str, default=None, required=True
+)
 @click.option("loop_db", "--loopdb", type=str, required=True)
 @click.option(
     "output_directory",
-    "-d",
+    "-o",
     "--output-directory",
     type=click.Path(file_okay=False, dir_okay=True, path_type=pathlib.Path),
     default="./",
@@ -138,7 +147,7 @@ def prep_cif(input_json, input_cif, fasta_sequence, loop_db, output_directory):
     with open(input_json, "r") as f:
         record_dict = json.load(f)
 
-    graphmol = load_openeye_cif1(args.input_cif)
+    graphmol = load_openeye_cif1(input_cif)
 
     # this is what you would do if you didn't want to use whatever ligand is in the protein
     # split_dict = split_openeye_mol(graphmol, keep_one_lig=False)
@@ -161,8 +170,8 @@ def prep_cif(input_json, input_cif, fasta_sequence, loop_db, output_directory):
 
     results, spruced = spruce_protein(
         initial_prot=oemol,
-        protein_sequence=args.fasta_sequence,
-        loop_db=args.loop_db,
+        protein_sequence=fasta_sequence,
+        loop_db=loop_db,
     )
 
     split_dict = split_openeye_mol(spruced)
@@ -180,7 +189,10 @@ def prep_cif(input_json, input_cif, fasta_sequence, loop_db, output_directory):
     results.to_json_file(output_directory / f"{target.target_name}_spruce_results.json")
 
 
-@cli.command("process-bindingdb")
+# TODO: help string
+@cli.command(
+    "process-bindingdb", help="Parse and verify SDF files downloaded from bindingdb."
+)
 @click.option(
     "input_directory",
     "-i",
@@ -208,6 +220,7 @@ def process_bindingdb(input_directory, output_directory):
     # get all sdf files
     sdfs = list(input_directory.glob("*3D.sdf"))
 
+    output = []
     for sdf in sdfs:
         # asap function to read separate ligands from a multi-ligand sdf file
         mols: list[Ligand] = MolFileFactory(filename=sdf).load()
@@ -284,7 +297,7 @@ def visualize_network(network_graphml, output_directory):
     from openfe.setup import LigandNetwork
 
     output_directory.mkdir(exist_ok=True, parents=True)
-    ligand_network = args.network_graphml
+    ligand_network = network_graphml
 
     if not ligand_network.exists():
         raise FileNotFoundError(
