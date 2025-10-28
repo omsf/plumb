@@ -7,7 +7,7 @@
 ```bash
 conda create -n plumbdb_dev -f env.yaml
 conda activate plumbdb_dev
-pip install -e ".[test]"
+pip install -e ".[dev]"
 ```
 
 ## Running tests

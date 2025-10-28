@@ -25,10 +25,10 @@ def download_pdb_structure(input_file, output_directory):
     with open(input_file, "r") as f:
         record_dict = json.load(f)
     downloaded = download_pdb_structure(
-        record_dict["pdb_id"], output_dir, file_format="cif1"
+        record_dict["pdb_id"], output_directory, file_format="cif1"
     )
     record_dict["cif"] = downloaded
-    with open(output_dir / "record.json", "w") as f:
+    with open(output_directory / "record.json", "w") as f:
         json.dump(record_dict, f)
 
 
