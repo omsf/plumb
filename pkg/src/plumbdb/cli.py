@@ -114,8 +114,70 @@ def generate_constrained_ligand_poses(input_sdf, prepped_schema, output_director
 
 
 @cli.command("prep-cif")
-def prep_cif():
-    raise NotImplementedError
+@click.option("input_json", "-j", "--input-json", type=str, required=True)
+@click.option("input_cif", "-c", "--input-cif", type=str, required=True)
+@click.option("fasta_sequence", "-f", "--fasta-sequence", type=str, required=True)
+@click.option("loop_db", "--loopdb", type=str, required=True)
+@click.option(
+    "output_directory",
+    "-d",
+    "--output-directory",
+    type=click.Path(file_okay=False, dir_okay=True, path_type=pathlib.Path),
+    default="./",
+    required=True,
+)
+def prep_cif(input_json, input_cif, fasta_sequence, loop_db, output_directory):
+    from asapdiscovery.data.backend.openeye import load_openeye_cif1
+    from asapdiscovery.modeling.modeling import split_openeye_mol
+    from asapdiscovery.data.schema.ligand import Ligand, Complex
+    from plumbdb.oespruce import spruce_protein
+    from asapdiscovery.data.schema.target import Target
+
+    output_directory.mkdir(exist_ok=True, parents=True)
+
+    with open(input_json, "r") as f:
+        record_dict = json.load(f)
+
+    graphmol = load_openeye_cif1(args.input_cif)
+
+    # this is what you would do if you didn't want to use whatever ligand is in the protein
+    # split_dict = split_openeye_mol(graphmol, keep_one_lig=False)
+    split_dict = split_openeye_mol(graphmol, keep_one_lig=True)
+
+    # # Save initial protein as pdb file
+    target = Target.from_oemol(
+        split_dict["prot"],
+        target_name=record_dict["pdb_id"],
+    )
+    # target.to_pdb("protein.pdb")
+
+    # this is what you would do if you didn't want to use whatever ligand is in the protein
+    ligand = Ligand.from_oemol(split_dict["lig"])
+    # ligand = Ligand.from_sdf(f'{record_dict["compound_name"]}.sdf')
+
+    combined_complex = Complex(target=target, ligand=ligand, ligand_chain="L")
+
+    oemol = combined_complex.to_combined_oemol()
+
+    results, spruced = spruce_protein(
+        initial_prot=oemol,
+        protein_sequence=args.fasta_sequence,
+        loop_db=args.loop_db,
+    )
+
+    split_dict = split_openeye_mol(spruced)
+    prepped_target = Target.from_oemol(split_dict["prot"], **target.dict())
+    prepped_ligand = Ligand.from_oemol(split_dict["lig"], **ligand.dict())
+    prepped_ligand.to_sdf(output_directory / f"{ligand.compound_name}_ligand.sdf")
+    prepped_target.to_pdb(output_directory / f"{target.target_name}_spruced.pdb")
+
+    prepped_complex = Complex(
+        target=prepped_target, ligand=prepped_ligand, ligand_chain="L"
+    )
+
+    filename = f"{target.target_name}_{ligand.compound_name}_spruced_complex.pdb"
+    prepped_complex.to_pdb(output_directory / filename)
+    results.to_json_file(output_directory / f"{target.target_name}_spruce_results.json")
 
 
 @cli.command("process-bindingdb")
