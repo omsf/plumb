@@ -181,8 +181,83 @@ def prep_cif(input_json, input_cif, fasta_sequence, loop_db, output_directory):
 
 
 @cli.command("process-bindingdb")
-def process_bindingdb():
-    raise NotImplementedError
+@click.option(
+    "input_directory",
+    "-i",
+    "--input-directory",
+    type=click.Path(file_okay=False, dir_okay=True, path_type=pathlib.Path),
+    required=True,
+    help="SDF file to process",
+)
+@click.option(
+    "output_directory",
+    "-o",
+    "--output-directory",
+    type=click.Path(file_okay=False, dir_okay=True, path_type=pathlib.Path),
+    required=True,
+    help="Directory to write output files",
+)
+def process_bindingdb(input_directory, output_directory):
+    from asapdiscovery.data.schema.ligand import Ligand
+    from asapdiscovery.data.readers.molfile import MolFileFactory
+    import pandas as pd
+    import math
+
+    output_directory.mkdir(exist_ok=True, parents=True)
+
+    # get all sdf files
+    sdfs = list(input_directory.glob("*3D.sdf"))
+
+    for sdf in sdfs:
+        # asap function to read separate ligands from a multi-ligand sdf file
+        mols: list[Ligand] = MolFileFactory(filename=sdf).load()
+
+        # create a dictionary for each ligand containing various relevant information
+        # there are some hidden choices here, for instance OpenEye is adding hydrogens which you might not want
+
+        for mol in mols:
+            mol_dict = {
+                "compound_name": mol.compound_name,
+                "filename": sdf.name,
+                "has_3d": mol.to_oemol().GetDimension() == 3,
+                "num_atoms": mol.to_oemol().NumAtoms(),
+                "smiles": mol.smiles,
+                "pdb_id": mol.tags.get("PDB ID ")[:4]
+                if mol.tags.get("PDB ID ")
+                else "",
+            }
+
+            # any data in the SDF file is saved to the 'tags' attribute of an asapdiscovery Ligand object
+            mol_dict.update(mol.tags)
+
+            # write out sdf file
+            if mol_dict["has_3d"]:
+                mol.to_sdf(output_directory / f"{mol.compound_name}.sdf")
+
+            output.append(mol_dict)
+
+    df = pd.DataFrame.from_records(output)
+    df.to_csv(output_directory / "processed_bindingdb.csv", index=False)
+
+    # write separate csvs for 2D and 3D
+    df_2d = df[~df["has_3d"]]
+    df_3d = df[df["has_3d"]]
+    df_2d.to_csv(output_directory / "2d_bindingdb.csv", index=False)
+    df_3d.to_csv(output_directory / "3d_bindingdb.csv", index=False)
+
+    unique_sdf_filenames = df_3d["filename"].unique()
+    with open(output_directory / "unique_3D_sdf_filenames.txt", "w") as f:
+        for filename in unique_sdf_filenames:
+            f.write(f"{filename}\n")
+
+    # write out separate json records
+    for record in df_3d.to_dict(orient="records"):
+        with open(output_directory / f"{record['compound_name']}.json", "w") as f:
+            f.write(
+                json.dumps(
+                    record, indent=4, default=lambda x: None if math.isnan(x) else x
+                )
+            )
 
 
 @cli.command("visualize-network")
