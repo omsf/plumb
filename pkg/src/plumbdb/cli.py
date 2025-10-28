@@ -260,6 +260,40 @@ def process_bindingdb(input_directory, output_directory):
             )
 
 
-@cli.command("visualize-network")
-def visualize_network():
-    raise NotImplementedError
+@cli.command(
+    "visualize-network",
+    help="Generate a network plot of the proposed alchemical network",
+)
+@click.option(
+    "network_graphml",
+    "-n",
+    "--network-graphml",
+    type=str,
+    required=True,
+    help="Path to the input JSON file containing the atom mapping network.",
+)
+@click.option(
+    "output_directory",
+    type=click.Path(file_okay=False, dir_okay=True, path_type=pathlib.Path),
+    required=True,
+    default=pathlib.Path("./"),
+    help="Path to the output directory where the results will be stored",
+)
+def visualize_network(network_graphml, output_directory):
+    from openfe.utils.atommapping_network_plotting import plot_atommapping_network
+    from openfe.setup import LigandNetwork
+
+    output_directory.mkdir(exist_ok=True, parents=True)
+    ligand_network = args.network_graphml
+
+    if not ligand_network.exists():
+        raise FileNotFoundError(
+            f"Could not find the ligand network file at {ligand_network}"
+        )
+
+    with open(ligand_network) as f:
+        graphml = f.read()
+
+    network = LigandNetwork.from_graphml(graphml)
+    fig = plot_atommapping_network(network)
+    fig.savefig(output_directory / "network_plot.png")
