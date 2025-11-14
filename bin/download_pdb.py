@@ -21,7 +21,7 @@ def main():
 
     with open(args.input_json, "r") as f:
         record_dict = json.load(f)
-    downloaded = download_pdb_structure(record_dict['pdb_id'], output_dir, file_format="cif1")
+    downloaded = download_pdb_structure(record_dict['pdb_id'], output_dir, file_format="cif") # changed from cif1
     record_dict['cif'] = downloaded
     with open(output_dir / "record.json", "w") as f:
         json.dump(record_dict, f)

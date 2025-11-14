@@ -12,7 +12,7 @@ params.fasta = "MENFQKVEKIGEGTYGVVYKARNKLTGEVVALKKIRLDTETEGVPSTAIREISLLKELNHPNIV
 params.congenericSeries = "${params.bindingDB}/1YKR_Validation_Affinities_3D.sdf"
 
 // this should eventually be split out to be more helpful
-params.output = "${params.bindingDB}/output"
+params.output = "${params.projectDir}/output"
 
 // Conda Envs
 // params.asap = "/home/paynea/miniforge3/envs/asap2025"
@@ -43,13 +43,17 @@ workflow {
     // Load in input json files and extract unique id from each and connect it to the json
     input_files.map{json ->  tuple([new JsonSlurper().parseText(json.text)][0].get("BindingDB monomerid"), json)}
         .set{unique_jsons}
-    unique_jsons.view()
     // Spruce is not compatible with the file I download
     DOWNLOAD_PDB(unique_jsons)
-    // PREP_CIF(DOWNLOAD_PDB.out.input_cif.combine(DOWNLOAD_PDB.out.record_json, by:0))
-    // PREP_FOR_DOCKING(PREP_CIF.out.prepped_pdb)
-    // ASSESS_PREPPED_PROTEIN(PREP_FOR_DOCKING.out.design_unit)
-    // GENERATE_CONSTRAINED_LIGAND_POSES(PREP_FOR_DOCKING.out.json_schema)
-    // MAKE_FEC_INPUTS(GENERATE_CONSTRAINED_LIGAND_POSES.out.posed_ligands.combine(PREP_FOR_DOCKING.out.prepped_pdb, by:0))
-    // VISUALIZE_NETWORK(MAKE_FEC_INPUTS.out.network_graph)
+    PREP_CIF(DOWNLOAD_PDB.out.input_cif.combine(DOWNLOAD_PDB.out.record_json, by:0))
+    // Use ASAP CLI to prepare the protein for docking
+    PREP_FOR_DOCKING(PREP_CIF.out.prepped_pdb)
+    // Generate a quality report using Open Eye tools
+    ASSESS_PREPPED_PROTEIN(PREP_FOR_DOCKING.out.design_unit)
+    // Use ASAP tools to generate constrained ligand poses 
+    GENERATE_CONSTRAINED_LIGAND_POSES(PREP_FOR_DOCKING.out.json_schema)
+    // Use ASAP alchemy CLI
+    MAKE_FEC_INPUTS(GENERATE_CONSTRAINED_LIGAND_POSES.out.posed_ligands.combine(PREP_FOR_DOCKING.out.prepped_pdb, by:0))
+    // Visualize the network using OpenFE tools
+    VISUALIZE_NETWORK(MAKE_FEC_INPUTS.out.network_graph)
 }
