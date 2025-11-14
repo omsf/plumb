@@ -287,6 +287,8 @@ def process_bindingdb(input_directory, output_directory):
 )
 @click.option(
     "output_directory",
+    "-o",
+    "--output-directory",
     type=click.Path(file_okay=False, dir_okay=True, path_type=pathlib.Path),
     required=True,
     default=pathlib.Path("./"),
