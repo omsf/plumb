@@ -1,0 +1,31 @@
+[build-system]
+requires = [
+    "setuptools>=77.0.3",
+    "setuptools-scm>=8",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "plumbdb"
+description = ""
+readme = "README.md"
+authors = [
+	{name = "Ariana Brenner Clerkin", email = "ariana.clerkin@choderlab.org"}
+]
+license = "MIT"
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Operating System :: POSIX",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Chemistry",
+]
+requires-python = ">= 3.11"
+dynamic = ["version"]
+
+[project.scripts]
+plumbline = "plumbdb.cli:cli"
+
+[project.optional-dependencies]
+test = ["pytest"]
+dev = ["pytest", "ruff"]
